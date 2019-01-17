@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PhotoRenamer": {
+      "commandName": "Project",
+      "commandLineArgs": "-v -p"
+    }
+  }
+}
