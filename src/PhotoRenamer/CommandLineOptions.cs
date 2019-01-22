@@ -10,10 +10,10 @@
         [Option('i', "input", Required = false, HelpText = "Optional. Set target directry(full path) which has photos to rename.")]
         public string InputDirectry { get; set; }
 
-        [Option('c', "category", Required = false, HelpText = "Optional. Set category string aiming to identify the instruments taking photos. If this option is not set, Current directly name is automatically used.")]
+        [Option('c', "category", Required = false, HelpText = "Optional. Set category string aiming to identify the instruments taking photos. If this option is not set, current directly name is automatically used.")]
         public string Category { get; set; }
 
-        [Option('p', "preview", Required = false, HelpText = "Optinonal. Preview the process, not actually rename files")]
+        [Option('p', "preview", Required = false, HelpText = "Optinonal. Preview the process, not rename any files")]
         public bool Preview { get; set; }
     }
 }
