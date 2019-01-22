@@ -14,7 +14,7 @@
     public class PhotoRenameService : IPhotoRenameService
     {
         readonly ILogger<IPhotoRenameService> _logger;
-        readonly string[] extentions = new string[]
+        readonly string[] extensions = new string[]
         {
             ".jpg",
             ".png",
@@ -89,9 +89,9 @@
             }
 
             var extension = item.Extension.ToLower();
-            if (!extentions.Any(x => x == extension))
+            if (!extensions.Any(x => x == extension))
             {
-                _logger.LogTrace($"[skip] File extention is not a rename target: {item.FullName}");
+                _logger.LogTrace($"[skip] File extension is not a rename target: {item.FullName}");
                 return;
             }
 
