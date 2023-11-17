@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PhotoRenamer.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "preview -i \"D:\\Repos\\temp\\photorenamer-test\" -v"
+    }
+  }
+}
