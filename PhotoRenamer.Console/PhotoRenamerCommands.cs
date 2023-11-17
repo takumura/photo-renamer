@@ -39,6 +39,7 @@ public class PhotoRenamerCommands : ConsoleAppBase
 
     }
 
+    [Command("preview", "Preview the rename process and display the expected result")]
     public void Preview(
         [Option("i", "Optional. Set target directry(full path) which has photos to rename.")] string input = "",
         [Option("c", "Optional. Set category string aiming to identify the instruments taking photos. If this option is not set, current directly name is automatically used.")] string category = "",

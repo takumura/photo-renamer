@@ -25,7 +25,7 @@ builder.ConfigureServices((ctx, services) =>
         }
         else
         {
-            logging.SetMinimumLevel(LogLevel.Debug);
+            logging.SetMinimumLevel(LogLevel.Information);
         }
     });
 
