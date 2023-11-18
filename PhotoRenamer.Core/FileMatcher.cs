@@ -2,7 +2,7 @@
 
 namespace PhotoRenamer.Core;
 
-public class FileMatcher
+internal class FileMatcher
 {
     readonly Matcher matcher = new();
 

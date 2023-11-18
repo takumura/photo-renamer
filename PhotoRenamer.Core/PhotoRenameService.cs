@@ -78,21 +78,23 @@ public class PhotoRenameService : IPhotoRenameService
 
         logger.LogTrace(Chalk.BrightCyan + $"set MaxDegreeOfParallelism to {maxDegreeOfParallelism}");
 
-        var detailedFileList = files
+        var renameInfoList = files
             .AsParallel()
             .WithDegreeOfParallelism(maxDegreeOfParallelism)
-            .Select(filePath => (
-                orginalFilePath: filePath,
-                Name: Path.GetFileNameWithoutExtension(filePath),
-                ext: Path.GetExtension(filePath),
-                creationTime: File.GetCreationTime(filePath)
-            ));
+            .Select(filePath => new RenameInfo()
+            {
+                OrginalFilePath = filePath,
+                Name = Path.GetFileNameWithoutExtension(filePath),
+                Ext = Path.GetExtension(filePath),
+                CreationTime = File.GetCreationTime(filePath)
+            });
+            //.ToImmutableArray(); // performance issue wasn't happened when keep using ParallelQuery<RenameInfo>
 
         // create date folders
-        var creationDates = detailedFileList
-            .Select(x => x.creationTime.ToString("yyyy-MM-dd"))
+        var creationDates = renameInfoList
+            .Select(x => x.CreationTime.ToString("yyyy-MM-dd"))
             .Distinct()
-            .ToImmutableArray();
+            .ToImmutableArray(); // need to evaluate the parallelQuery result, performance issue happened on next Parallel.ForEach method without evaluation
 
         Parallel.ForEach(
             creationDates,
@@ -103,11 +105,19 @@ public class PhotoRenameService : IPhotoRenameService
             });
 
         Parallel.ForEach(
-            detailedFileList,
+            renameInfoList,
             new ParallelOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism },
-            fileDetail =>
+            renameInfo =>
             {
-                ProcessRename(baseDirectory, fileDetail, categoryName);
+                var checkLivePhotoResult = CheckLivePhoto(renameInfoList, renameInfo);
+                if (checkLivePhotoResult.exists)
+                {
+                    ProcessRename(baseDirectory, categoryName, renameInfo, checkLivePhotoResult.livePhotoBaseRenameInfo!);
+                }
+                else
+                {
+                    ProcessRename(baseDirectory, categoryName, renameInfo);
+                }
             });
     }
 
@@ -124,18 +134,45 @@ public class PhotoRenameService : IPhotoRenameService
         }
     }
 
-    private void ProcessRename(string baseDirectory, (string orginalFilePath, string name, string ext, DateTime creationTime) fileDetail, string categoryName)
+    private (bool exists, RenameInfo? livePhotoBaseRenameInfo) CheckLivePhoto(IEnumerable<RenameInfo> renameInfoList, RenameInfo renameInfo)
     {
-        var creationYMD = fileDetail.creationTime.ToString("yyyyMMdd");
-        var creationHMS = fileDetail.creationTime.ToString("HHmmss");
-        var newFileName = $"{creationYMD}_{creationHMS}_{categoryName}_{fileDetail.name}{fileDetail.ext}";
+        // currently, only the target file extention is ".mov".
+        if (renameInfo.Ext != ".mov") return (false, null);
 
-        var creationKebabYMD = fileDetail.creationTime.ToString("yyyy-MM-dd");
-        logger.LogTrace(Chalk.BrightCyan + $"Rename file: {fileDetail.name}{fileDetail.ext} to {creationKebabYMD}\\{newFileName}");
+        // if it's live photo movie file, there will be a picture file which has same name with other extention (jpeg or heic).
+        var livePhotoFile = renameInfoList.Where(x => x.Ext != ".mov" && x.Name == renameInfo.Name).SingleOrDefault();
+        return livePhotoFile == null
+            ? (false, null)
+            : (true, livePhotoFile);
+    }
+
+    private void ProcessRename(string baseDirectory, string categoryName, RenameInfo renameInfo)
+    {
+        var creationYMD = renameInfo.CreationTime.ToString("yyyyMMdd");
+        var creationHMS = renameInfo.CreationTime.ToString("HHmmss");
+        var newFileName = $"{creationYMD}_{creationHMS}_{categoryName}_{renameInfo.Name}{renameInfo.Ext}";
+
+        var creationKebabYMD = renameInfo.CreationTime.ToString("yyyy-MM-dd");
+        logger.LogTrace(Chalk.BrightCyan + $"Rename file: {renameInfo.Name}{renameInfo.Ext} to {creationKebabYMD}\\{newFileName}");
         if (!isPreview)
         {
             var newFilePath = $"{baseDirectory}\\{creationKebabYMD}\\{newFileName}";
-            File.Move(fileDetail.orginalFilePath, newFilePath);
+            File.Move(renameInfo.OrginalFilePath, newFilePath);
+        }
+    }
+
+    private void ProcessRename(string baseDirectory, string categoryName, RenameInfo renameInfo, RenameInfo livePhotoBaseRenameInfo)
+    {
+        var creationYMD = livePhotoBaseRenameInfo.CreationTime.ToString("yyyyMMdd");
+        var creationHMS = livePhotoBaseRenameInfo.CreationTime.ToString("HHmmss");
+        var newFileName = $"{creationYMD}_{creationHMS}_{categoryName}_{renameInfo.Name}{renameInfo.Ext}";
+
+        var creationKebabYMD = livePhotoBaseRenameInfo.CreationTime.ToString("yyyy-MM-dd");
+        logger.LogTrace(Chalk.BrightCyan + $"Rename live photo file: {renameInfo.Name}{renameInfo.Ext} to {creationKebabYMD}\\{newFileName}");
+        if (!isPreview)
+        {
+            var newFilePath = $"{baseDirectory}\\{creationKebabYMD}\\{newFileName}";
+            File.Move(renameInfo.OrginalFilePath, newFilePath);
         }
     }
 }
