@@ -11,7 +11,7 @@ public class PhotoRenameService : IPhotoRenameService
     // https://learn.microsoft.com/ja-jp/dotnet/api/system.environment.processorcount
     readonly int maxDegreeOfParallelism = Convert.ToInt32(Math.Ceiling(Environment.ProcessorCount * 0.75));
     readonly string[] includePatterns = ["**/*.arw", "**/*.heic", "**/*.jpg", "**/*.mov", "**/*.mp4", "**/*.png"];
-    readonly string[] excludePatterns = [@"**/*_*"];
+    readonly string[] excludePatterns = [@"**/*_IMG_*"];
 
     bool isPreview;
 
