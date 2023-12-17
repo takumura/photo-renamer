@@ -1,5 +1,4 @@
-﻿using Cysharp.Text;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PhotoRenamer.Console;
 using PhotoRenamer.Core;
@@ -11,12 +10,7 @@ builder.ConfigureServices((ctx, services) =>
     services.AddLogging(logging =>
     {
         logging.ClearProviders();
-        logging.AddZLoggerConsole(options =>
-        {
-            // Tips: use PrepareUtf8 to achive better performance.
-            var prefixFormat = ZString.PrepareUtf8<LogLevel, DateTime>("[{0}][{1}]");
-            options.PrefixFormatter = (writer, info) => prefixFormat.FormatTo(ref writer, info.LogLevel, info.Timestamp.DateTime.ToLocalTime());
-        });
+        logging.AddZLoggerConsole();
 
         // bad manner but reviewing args and finding verbose options for rename/preview 
         if (args.Any(x => x == "-v" || x == "--verbose"))
