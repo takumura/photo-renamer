@@ -4,8 +4,17 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>0.0.1</AssemblyVersion>
-    <VersionPrefix>0.0.1</VersionPrefix>
+    <AssemblyVersion>0.0.2</AssemblyVersion>
+    <VersionPrefix>0.0.2</VersionPrefix>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <DebugType>embedded</DebugType>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishTrimmed>true</PublishTrimmed>
+    <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+    <TrimMode>partial</TrimMode>
+    <!--<PublishAot>true</PublishAot>-->
   </PropertyGroup>
 
   <ItemGroup>
